@@ -66,38 +66,54 @@ trips2015$starttime <- a
 
 # test = trips2015$starttime[is.na(b)]
 
+#trip stoptime
+
+a = parse_date_time(trips2015$stoptime, order = 'mdy HMS')
+b = parse_date_time(trips2015$stoptime, order = 'mdy HM')
+
+#check if our code worked
+sum(is.na(a)) + sum(is.na(b))
+
+a[is.na(a)] <- b[!is.na(b)]
+sum(is.na(a))
+trips2015$stoptime <- a
+
+
 
 #clean up data####
 
-trips$starttime = fastPOSIXct(trips$starttime)
-trips$stoptime = fastPOSIXct(trips$stoptime)
-trips$`end station id` = as.numeric(trips$`end station id`)
-trips$`end station latitude` = as.numeric(trips$`end station latitude`)
-trips$`end station longitude` = as.numeric(trips$`end station longitude`)
-trips$`birth year` = gsub("\\N",NA,trips$`birth year`)
-trips$`birth year` = as.numeric(trips$`birth year`)
+# trips$starttime = fastPOSIXct(trips$starttime)
+# trips$stoptime = fastPOSIXct(trips$stoptime)
+trips2015$`end station id` = as.numeric(trips2015$`end station id`)
+# trips$`end station latitude` = as.numeric(trips$`end station latitude`)
+# trips$`end station longitude` = as.numeric(trips$`end station longitude`)
+# trips$`birth year` = gsub("\\N",NA,trips$`birth year`)
+trips2015$`birth year` = as.numeric(trips2015$`birth year`)
 
 #recoding male to 0 and female to 1 unknown is now NA
-trips$gender = gsub(0,NA,trips$gender)
-trips$gender = gsub("1","0",trips$gender)
-trips$gender = gsub("2","1",trips$gender)
-trips$gender = as.numeric(trips$gender)
+trips2015$gender = gsub(0,NA,trips2015$gender)
+trips2015$gender = gsub("1","0",trips2015$gender)
+trips2015$gender = gsub("2","1",trips2015$gender)
+trips2015$gender = as.numeric(trips2015$gender)
 
 
 #loop to create daily fst files####
 setwd("C:\\Users\\lamja\\Documents\\R\\citibike\\fst")
+setwd("~/Documents/R/citibike/fst")
 
-trips$date = as.Date(substr(trips$starttime,1,10))
+trips2015$date = as.Date(substr(trips2015$starttime,1,10))
 
-x = seq.Date(as.Date('2013-05-31'),as.Date('2014-12-31'), by="day")
+x = seq.Date(as.Date('2015-01-01'),as.Date('2015-12-31'), by="day")
 
 
 for (i in x){
-  a <- trips %>% dplyr::filter(date == i)
+  a <- trips2015 %>% dplyr::filter(date == i)
   a$date = NULL
   write.fst(a,paste0("citi-",as.Date(i),".fst"))
-  
-}
+  }
 
-test2 = read.fst("citi-2013-07-01.fst")
-
+#test
+setwd("~/Documents/R/citibike/fst")
+test = read.fst("citi-2013-07-01.fst")
+test2 = read.fst("citi-2015-01-01.fst")
+test3 = rbind(test,test2)
