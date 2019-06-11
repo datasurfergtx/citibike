@@ -46,6 +46,27 @@ trips = pblapply(list.files(pattern="*\\.csv"), function(x){
 })%>% rbindlist()
 
 
+
+#load in 2015 dataset####
+setwd("~/Downloads/2015")
+trips2015 = pblapply(list.files(pattern="*\\.csv"), function(x){
+  fread(x) 
+})%>% rbindlist()
+
+#fixing two datetimes in one column####
+a = parse_date_time(trips2015$starttime, order = 'mdy HMS')
+b = parse_date_time(trips2015$starttime, order = 'mdy HM')
+
+#check if our code worked
+sum(is.na(a)) + sum(is.na(b))
+
+a[is.na(a)] <- b[!is.na(b)]
+sum(is.na(a))
+trips2015$starttime <- a
+
+# test = trips2015$starttime[is.na(b)]
+
+
 #clean up data####
 
 trips$starttime = fastPOSIXct(trips$starttime)
@@ -79,13 +100,4 @@ for (i in x){
 }
 
 test2 = read.fst("citi-2013-07-01.fst")
-
-
-#Method to extract two different dates in the same column
-a <- as.Date(data$initialDiagnose,format="%m/%d/%Y") # Produces NA when format is not "%m/%d/%Y"
-b <- as.Date(data$initialDiagnose,format="%d.%m.%Y") # Produces NA when format is not "%d.%m.%Y"
-a[is.na(a)] <- b[!is.na(b)] # Combine both while keeping their ranks
-data$initialDiagnose <- a # Put it back in your dataframe
-data$initialDiagnose
-[1] "2009-01-14" "2005-09-22" "2010-04-21" "2010-01-28" "2009-01-09" "2005-03-28" "2005-01-04" "2005-01-04" "2010-09-17" "2010-01-03"
 
