@@ -40,6 +40,7 @@ baddates$stoptime = parse_date_time(baddates$stoptime, order = 'mdy HMS')
 
 #Load in larger dataset####
 setwd("C:\\Users\\lamja\\Documents\\R\\citibike\\raw files")
+setwd("~/Downloads/csvs")
 trips = pblapply(list.files(pattern="*\\.csv"), function(x){
  fread(x) 
 })%>% rbindlist()
@@ -78,4 +79,13 @@ for (i in x){
 }
 
 test2 = read.fst("citi-2013-07-01.fst")
+
+
+#Method to extract two different dates in the same column
+a <- as.Date(data$initialDiagnose,format="%m/%d/%Y") # Produces NA when format is not "%m/%d/%Y"
+b <- as.Date(data$initialDiagnose,format="%d.%m.%Y") # Produces NA when format is not "%d.%m.%Y"
+a[is.na(a)] <- b[!is.na(b)] # Combine both while keeping their ranks
+data$initialDiagnose <- a # Put it back in your dataframe
+data$initialDiagnose
+[1] "2009-01-14" "2005-09-22" "2010-04-21" "2010-01-28" "2009-01-09" "2005-03-28" "2005-01-04" "2005-01-04" "2010-09-17" "2010-01-03"
 
