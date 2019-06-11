@@ -38,6 +38,8 @@ tripcount = seq.Date(as.Date("2013-05-31"), as.Date("2015-12-31"), by = "days") 
    group_by(month, year) %>% 
    summarize(n = sum(n), time = mean(time), age = mean(age), female = mean(female), male = mean(male)) %>%
    arrange(year, month)
-
+ 
+agg %>% group_by(month, year) %>%
+  mutate(trip_perc = lag())
 
 
