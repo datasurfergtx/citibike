@@ -207,13 +207,13 @@ for (i in x){
 setwd("~/Documents/R/temp/2016")
 trips = pblapply(list.files(pattern="*\\.csv"), function(x){
   fread(x) 
-})%>% rbindlist()
+})%>% rbindlist(use.names = FALSE)
 
 
 #fix datetimes
 
 #starttimes
-a = mdy_hm(trips$starttime, tz = "America/New_York")
+a = ymd_hms(trips$starttime, tz = "America/New_York")
 b = mdy_hms(trips$starttime,tz = "America/New_York")
 
 #check if our code worked
@@ -227,7 +227,7 @@ sum(is.na(trips$starttime))
 
 
 #stoptimes
-a = mdy_hm(trips$stoptime, tz = "America/New_York")
+a = ymd_hms(trips$stoptime, tz = "America/New_York")
 b = mdy_hms(trips$stoptime,tz = "America/New_York")
 
 #check if our code worked
@@ -238,4 +238,46 @@ a[is.na(a)] <- b[!is.na(b)]
 sum(is.na(a))
 trips$stoptime <- a
 sum(is.na(trips$stoptime))
+
+#birth year
+trips$`birth year` = as.numeric(trips$`birth year`)
+
+#recoding male to 0 and female to 1 unknown is now NA
+trips$gender = gsub(0,NA,trips$gender)
+trips$gender = gsub("1","0",trips$gender)
+trips$gender = gsub("2","1",trips$gender)
+trips$gender = as.numeric(trips$gender)
+
+#rename all columns
+names(trips) = c("time","start","end","start_id","start_loc","start_lat","start_lon","end_id","end_loc","end_lat","end_lon","bikeid","user","dob","gender")
+
+
+#setup daily files
+setwd("~/Documents/R/citibike/fst2")
+
+trips$date = ymd(substr(trips$start,1,10))
+
+x = seq.Date(as.Date('2016-01-27'),as.Date('2016-12-31'), by="days")
+
+
+for (i in x){
+  a <- trips %>% dplyr::filter(date == i)
+  a$date = NULL
+  write.fst(a,paste0("citi-",as.Date(i),".fst"))
+}
+
+#moving 4 records to different dates to keep the loop going
+test = read.fst("citi-2016-01-22.fst")
+testfinal = test[1:20946,]
+z = test[20947,]
+zz = test[20948,]
+zzz = test[20949,]
+zzzz = test[20950,]
+
+write.fst(z,"citi-2016-01-23.fst")
+write.fst(zz,"citi-2016-01-24.fst")
+write.fst(zzz,"citi-2016-01-25.fst")
+write.fst(zzzz,"citi-2016-01-26.fst")
+write.fst(testfinal,"citi-2016-01-22.fst")
+
 
