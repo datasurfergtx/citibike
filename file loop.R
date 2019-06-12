@@ -31,8 +31,8 @@ baddates = pblapply(list.files(pattern="*\\.csv"), function(x){
   fread(x) 
 })%>% rbindlist()
 
-baddates$starttime = parse_date_time(baddates$starttime, order = 'mdy HMS')
-baddates$stoptime = parse_date_time(baddates$stoptime, order = 'mdy HMS')
+baddates$starttime = parse_date_time(baddates$starttime, order = 'mdy HMS', tz = "America/New_York")
+baddates$stoptime = parse_date_time(baddates$stoptime, order = 'mdy HMS', tz = "America/New_York")
 
 # setwd("C:\\Users\\lamja\\Documents\\R\\citibike\\raw files")
 # fwrite(baddates,"gooddates.csv")
