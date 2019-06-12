@@ -134,11 +134,70 @@ for (i in x){
   write.fst(a,paste0("citi-",as.Date(i),".fst"))
 }
 
-# test = read.fst("citi-2014-01-01.fst")
+test = read.fst("citi-2014-01-01.fst")
 
 
 #2015 files ####
-setwd("~/Documents/R/temp/2014")
-trips2014 = pblapply(list.files(pattern="*\\.csv"), function(x){
+setwd("~/Documents/R/temp/2015")
+trips = pblapply(list.files(pattern="*\\.csv"), function(x){
   fread(x) 
 })%>% rbindlist()
+
+
+#fix datetimes
+
+#starttimes
+a = mdy_hm(trips$starttime, tz = "America/New_York")
+b = mdy_hms(trips$starttime,tz = "America/New_York")
+
+#check if our code worked
+sum(is.na(a)) + sum(is.na(b))
+
+#conversion
+a[is.na(a)] <- b[!is.na(b)]
+sum(is.na(a))
+trips$starttime <- a
+sum(is.na(trips$starttime))
+
+
+#stoptimes
+a = mdy_hm(trips$stoptime, tz = "America/New_York")
+b = mdy_hms(trips$stoptime,tz = "America/New_York")
+
+#check if our code worked
+sum(is.na(a)) + sum(is.na(b))
+
+#conversion
+a[is.na(a)] <- b[!is.na(b)]
+sum(is.na(a))
+trips$stoptime <- a
+sum(is.na(trips$stoptime))
+
+#birth year
+trips$`birth year` = as.numeric(trips$`birth year`)
+
+#recoding male to 0 and female to 1 unknown is now NA
+trips$gender = gsub(0,NA,trips$gender)
+trips$gender = gsub("1","0",trips$gender)
+trips$gender = gsub("2","1",trips$gender)
+trips$gender = as.numeric(trips$gender)
+
+#rename all columns
+names(trips) = c("time","start","end","start_id","start_loc","start_lat","start_lon","end_id","end_loc","end_lat","end_lon","bikeid","user","dob","gender")
+
+
+#setup daily files
+setwd("~/Documents/R/citibike/fst2")
+
+trips$date = ymd(substr(trips$start,1,10))
+
+x = seq.Date(as.Date('2015-01-01'),as.Date('2015-12-31'), by="days")
+
+
+for (i in x){
+  a <- trips %>% dplyr::filter(date == i)
+  a$date = NULL
+  write.fst(a,paste0("citi-",as.Date(i),".fst"))
+}
+
+test = read.fst("citi-2015-05-10.fst")
