@@ -53,9 +53,11 @@ trips2015 = pblapply(list.files(pattern="*\\.csv"), function(x){
   fread(x) 
 })%>% rbindlist()
 
+# trips2015 = fread("201501-citibike-tripdata.csv")
+
 #fixing two datetimes in one column####
-a = parse_date_time(trips2015$starttime, order = 'mdy HMS')
-b = parse_date_time(trips2015$starttime, order = 'mdy HM')
+a = parse_date_time(trips2015$starttime, order = 'mdy HMS', tz = "America/New_York")
+b = parse_date_time(trips2015$starttime, order = 'mdy HM', tz= "America/New_York")
 
 #check if our code worked
 sum(is.na(a)) + sum(is.na(b))
@@ -68,8 +70,8 @@ trips2015$starttime <- a
 
 #trip stoptime
 
-a = parse_date_time(trips2015$stoptime, order = 'mdy HMS')
-b = parse_date_time(trips2015$stoptime, order = 'mdy HM')
+a = parse_date_time(trips2015$stoptime, order = 'mdy HMS', tz = "America/New_York")
+b = parse_date_time(trips2015$stoptime, order = 'mdy HM', tz = "America/New_York")
 
 #check if our code worked
 sum(is.na(a)) + sum(is.na(b))
@@ -134,8 +136,8 @@ trips = pblapply(list.files(pattern="*\\.csv"), function(x){
 # a = parse_date_time(trips$starttime, orders = 'mdy HMS')
 # b = parse_date_time(trips$starttime, orders = 'ymd HMS')
 
-a = ymd_hms(trips$starttime)
-b = mdy_hms(trips$starttime)
+a = ymd_hms(trips$starttime, tz = "America/New_York")
+b = mdy_hms(trips$starttime,tz = "America/New_York")
 
 # table(months(a), year(a))
 # table(months(b), year(b))
