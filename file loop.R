@@ -80,6 +80,21 @@ trips2015$stoptime <- a
 
 
 
+
+
+#load in 2016 data####
+setwd("~/Documents/R/temp/2016")
+trips2016 = pblapply(list.files(pattern="*\\.csv"), function(x){
+  fread(x) 
+})%>% rbindlist()
+
+
+
+
+
+
+
+
 #clean up data####
 
 # trips$starttime = fastPOSIXct(trips$starttime)

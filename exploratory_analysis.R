@@ -34,8 +34,8 @@ tripcount = seq.Date(as.Date("2013-05-31"), as.Date("2015-12-31"), by = "days") 
                 female = mean(gender, na.rm = TRUE), male = 1 - mean(gender, na.rm = TRUE))
   }) %>% rbindlist()
 
- agg = tripcount %>% 
-   group_by(month, year) %>% 
+ agg2 = tripcount %>% 
+   group_by(year, month) %>% 
    summarize(n = sum(n), time = mean(time), age = mean(age), female = mean(female), male = mean(male)) %>%
    arrange(year, month)
  
