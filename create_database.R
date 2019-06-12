@@ -200,4 +200,42 @@ for (i in x){
   write.fst(a,paste0("citi-",as.Date(i),".fst"))
 }
 
-test = read.fst("citi-2015-05-10.fst")
+# test = read.fst("citi-2015-05-10.fst")
+
+
+#2016 files ####
+setwd("~/Documents/R/temp/2016")
+trips = pblapply(list.files(pattern="*\\.csv"), function(x){
+  fread(x) 
+})%>% rbindlist()
+
+
+#fix datetimes
+
+#starttimes
+a = mdy_hm(trips$starttime, tz = "America/New_York")
+b = mdy_hms(trips$starttime,tz = "America/New_York")
+
+#check if our code worked
+sum(is.na(a)) + sum(is.na(b))
+
+#conversion
+a[is.na(a)] <- b[!is.na(b)]
+sum(is.na(a))
+trips$starttime <- a
+sum(is.na(trips$starttime))
+
+
+#stoptimes
+a = mdy_hm(trips$stoptime, tz = "America/New_York")
+b = mdy_hms(trips$stoptime,tz = "America/New_York")
+
+#check if our code worked
+sum(is.na(a)) + sum(is.na(b))
+
+#conversion
+a[is.na(a)] <- b[!is.na(b)]
+sum(is.na(a))
+trips$stoptime <- a
+sum(is.na(trips$stoptime))
+
