@@ -204,7 +204,7 @@ for (i in x){
 
 
 #2016 files ####
-setwd("~/Documents/R/temp/2016")
+setwd("~/Documents/R/temp/2017")
 trips = pblapply(list.files(pattern="*\\.csv"), function(x){
   fread(x) 
 })%>% rbindlist(use.names = FALSE)
@@ -248,9 +248,6 @@ trips$gender = gsub("1","0",trips$gender)
 trips$gender = gsub("2","1",trips$gender)
 trips$gender = as.numeric(trips$gender)
 
-#rename all columns
-names(trips) = c("time","start","end","start_id","start_loc","start_lat","start_lon","end_id","end_loc","end_lat","end_lon","bikeid","user","dob","gender")
-
 
 #setup daily files
 setwd("~/Documents/R/citibike/fst2")
@@ -279,5 +276,83 @@ write.fst(zz,"citi-2016-01-24.fst")
 write.fst(zzz,"citi-2016-01-25.fst")
 write.fst(zzzz,"citi-2016-01-26.fst")
 write.fst(testfinal,"citi-2016-01-22.fst")
+
+
+#2017 files####
+setwd("~/Documents/R/temp/2016")
+trips = pblapply(list.files(pattern="*\\.csv"), function(x){
+  fread(x) 
+})%>% rbindlist(use.names = FALSE)
+
+#rename all columns
+names(trips) = c("time","start","end","start_id","start_loc","start_lat","start_lon","end_id","end_loc","end_lat","end_lon","bikeid","user","dob","gender")
+
+
+#fix datetimes
+
+#starttimes
+a = ymd_hms(trips$start, tz = "America/New_York")
+# b = mdy_hms(trips$start,tz = "America/New_York")
+
+#check if our code worked
+sum(is.na(a)) + sum(is.na(b))
+
+#conversion
+# a[is.na(a)] <- b[!is.na(b)]
+# sum(is.na(a))
+trips$start <- a
+sum(is.na(trips$start))
+
+
+#stoptimes
+a = ymd_hms(trips$end, tz = "America/New_York")
+# b = mdy_hms(trips$end,tz = "America/New_York")
+
+#check if our code worked
+sum(is.na(a))
+
+#conversion
+# a[is.na(a)] <- b[!is.na(b)]
+# sum(is.na(a))
+trips$end <- a
+sum(is.na(trips$end))
+
+#birth year
+trips$dob = as.numeric(trips$dob)
+
+#recoding male to 0 and female to 1 unknown is now NA
+trips$gender = gsub(0,NA,trips$gender)
+trips$gender = gsub("1","0",trips$gender)
+trips$gender = gsub("2","1",trips$gender)
+trips$gender = as.numeric(trips$gender)
+
+
+#setup daily files
+setwd("~/Documents/R/citibike/fst2")
+
+trips$date = ymd(substr(trips$start,1,10))
+
+x = seq.Date(as.Date('2016-01-27'),as.Date('2016-12-31'), by="days")
+
+
+for (i in x){
+  a <- trips %>% dplyr::filter(date == i)
+  a$date = NULL
+  write.fst(a,paste0("citi-",as.Date(i),".fst"))
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
