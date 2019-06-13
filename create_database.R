@@ -204,7 +204,7 @@ for (i in x){
 
 
 #2016 files ####
-setwd("~/Documents/R/temp/2017")
+setwd("~/Documents/R/temp/2016")
 trips = pblapply(list.files(pattern="*\\.csv"), function(x){
   fread(x) 
 })%>% rbindlist(use.names = FALSE)
@@ -279,7 +279,7 @@ write.fst(testfinal,"citi-2016-01-22.fst")
 
 
 #2017 files####
-setwd("~/Documents/R/temp/2016")
+setwd("~/Documents/R/temp/2017")
 trips = pblapply(list.files(pattern="*\\.csv"), function(x){
   fread(x) 
 })%>% rbindlist(use.names = FALSE)
@@ -332,7 +332,7 @@ setwd("~/Documents/R/citibike/fst2")
 
 trips$date = ymd(substr(trips$start,1,10))
 
-x = seq.Date(as.Date('2016-01-27'),as.Date('2016-12-31'), by="days")
+x = seq.Date(as.Date('2017-03-17'),as.Date('2017-12-31'), by="days")
 
 
 for (i in x){
@@ -342,17 +342,87 @@ for (i in x){
 }
 
 
+#audit missing files
+audit = trips %>% group_by(date) %>% summarize(n())
+
+feb = read.fst("citi-2017-02-08.fst")
+feb2 = feb[40428,]
+feb3 = feb[1:40427,]
+write.fst(feb2, "citi-2017-02-09.fst")
+write.fst(feb3, "citi-2017-02-08.fst")
+
+mar = read.fst("citi-2017-03-13.fst")
+mar1 = mar[1:27415,]
+mar2 = mar[27416,]
+mar3 = mar[27416,]
+mar4 = mar[27417,]
+write.fst(mar1,"citi-2017-03-13.fst")
+write.fst(mar2,"citi-2017-03-14.fst")
+write.fst(mar3,"citi-2017-03-15.fst")
+write.fst(mar4,"citi-2017-03-16.fst")
+
+#2018 and 2019 files ####
+setwd("~/Documents/R/temp/2018")
+trips = pblapply(list.files(pattern="*\\.csv"), function(x){
+  fread(x) 
+})%>% rbindlist(use.names = FALSE)
+
+#rename all columns
+names(trips) = c("time","start","end","start_id","start_loc","start_lat","start_lon","end_id","end_loc","end_lat","end_lon","bikeid","user","dob","gender")
+
+#fix datetimes
+
+#starttimes
+a = ymd_hms(trips$start, tz = "America/New_York")
+# b = mdy_hms(trips$start,tz = "America/New_York")
+
+#check if our code worked
+sum(is.na(a))
+
+#conversion
+# a[is.na(a)] <- b[!is.na(b)]
+# sum(is.na(a))
+trips$start <- a
+sum(is.na(trips$start))
 
 
+#stoptimes
+a = ymd_hms(trips$end, tz = "America/New_York")
+# b = mdy_hms(trips$end,tz = "America/New_York")
+
+#check if our code worked
+sum(is.na(a))
+
+#conversion
+# a[is.na(a)] <- b[!is.na(b)]
+# sum(is.na(a))
+trips$end <- a
+sum(is.na(trips$end))
+
+#start and end id conversion
+trips$start_id = as.integer(trips$start_id)
+trips$end_id = as.integer(trips$end_id)
+
+#birth year
+trips$dob = as.numeric(trips$dob)
+
+#recoding male to 0 and female to 1 unknown is now NA
+trips$gender = gsub(0,NA,trips$gender)
+trips$gender = gsub("1","0",trips$gender)
+trips$gender = gsub("2","1",trips$gender)
+trips$gender = as.numeric(trips$gender)
+
+#setup daily files
+setwd("~/Documents/R/citibike/fst2")
+
+trips$date = ymd(substr(trips$start,1,10))
+
+x = seq.Date(as.Date('2018-01-01'),as.Date('2019-04-30'), by="days")
 
 
-
-
-
-
-
-
-
-
-
+for (i in x){
+  a <- trips %>% dplyr::filter(date == i)
+  a$date = NULL
+  write.fst(a,paste0("citi-",as.Date(i),".fst"))
+}
 
