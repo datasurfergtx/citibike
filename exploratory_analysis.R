@@ -43,3 +43,12 @@ agg %>% group_by(month, year) %>%
   mutate(trip_perc = lag())
 
 
+
+
+
+setwd("~/Documents/R/citibike/fst2/")
+tripcount = seq.Date(as.Date("2019-04-01"), as.Date("2019-04-30"), by = "days") %>%
+  pblapply(function(x){
+    count = read.fst(list.files(pattern = as.character(x)))
+  }) %>% rbindlist()
+
