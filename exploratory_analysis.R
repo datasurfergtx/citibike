@@ -1,4 +1,3 @@
-setwd("~/Documents/R/citibike/fst/")
 library(readr)
 library(data.table)
 library(bit64)
