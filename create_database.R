@@ -1,3 +1,4 @@
+#load libraries ####
 library(readr)
 library(data.table)
 library(bit64)
@@ -362,7 +363,7 @@ write.fst(mar3,"citi-2017-03-15.fst")
 write.fst(mar4,"citi-2017-03-16.fst")
 
 #2018 and 2019 files ####
-setwd("~/Documents/R/temp/2018")
+setwd("~/Documents/R/temp/2019")
 trips = pblapply(list.files(pattern="*\\.csv"), function(x){
   fread(x) 
 })%>% rbindlist(use.names = FALSE)
@@ -417,7 +418,7 @@ setwd("~/Documents/R/citibike/fst2")
 
 trips$date = ymd(substr(trips$start,1,10))
 
-x = seq.Date(as.Date('2018-01-01'),as.Date('2019-04-30'), by="days")
+x = seq.Date(as.Date('2019-05-01'),as.Date('2019-05-31'), by="days")
 
 
 for (i in x){
