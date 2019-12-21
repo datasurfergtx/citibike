@@ -28,7 +28,3 @@ Note: column names are different from the original dataset and the gender key ha
   - 0 = male
   - 1 = female
   - NA = unknown
-
-
-## Coming Soon:
-- Data Exploration will be coming soon. exploratory_analysis.R will contain all the fun analysis.
